@@ -70,14 +70,25 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
 
   def get_token(client, params, headers) do
     client
-    |> put_param("client_secret", client.client_secret)
     |> put_header("Accept", "application/json")
-    |> AuthCode.get_token(params, headers)
+    |> validate_code(params)
+    |> put_param(:grant_type, "authorization_code")
+    |> put_param(:redirect_uri, client.redirect_uri)
+    |> basic_auth()
+    |> put_headers(headers)
   end
 
   defp userinfo_url() do
     Application.get_env(:ueberauth, __MODULE__)
     |> Keyword.get(:userinfo_url, Keyword.get(@defaults, :userinfo_url))
+  end
+
+  defp validate_code(client, params) do
+    {code, params} = Keyword.pop(params, :code, client.params["code"])
+    unless code do
+      raise OAuth2.Error, reason: "Missing required key `code` for `#{inspect(__MODULE__)}`"
+    end
+    put_param(client, :code,  code)
   end
 
   defp validate_config_option!(config, key) when is_list(config) do
