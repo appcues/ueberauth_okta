@@ -24,6 +24,7 @@ defmodule Ueberauth.Okta.Mixfile do
 
   defp deps do
     [
+     {:jason, "~> 1.2"},
      {:oauth2, "~> 2.0"},
      {:ueberauth, "~> 0.6"},
 
