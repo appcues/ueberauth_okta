@@ -24,7 +24,7 @@ defmodule Ueberauth.Okta.Mixfile do
 
   defp deps do
     [
-     {:oauth2, git: "git@github.com:Deconstrained/oauth2"},
+     {:oauth2, "~> 2.0"},
      {:ueberauth, "~> 0.6"},
 
      # dev/test only dependencies

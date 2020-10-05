@@ -9,6 +9,7 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
         client_secret: System.get_env("OKTA_CLIENT_SECRET")
   You can also include options from the `OAuth2.Client` struct which will take precedence.
   """
+  require Jason
   use OAuth2.Strategy
 
   alias OAuth2.{Client, Strategy.AuthCode}
@@ -41,6 +42,7 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
                   |> Keyword.merge(config)
 
     Client.new(client_opts)
+    |> OAuth2.Client.put_serializer("application/json", Jason)
   end
 
   @doc """
