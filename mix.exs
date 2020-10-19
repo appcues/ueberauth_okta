@@ -1,7 +1,7 @@
 defmodule Ueberauth.Okta.Mixfile do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.2.0"
 
   def project do
     [app: :ueberauth_okta,
@@ -38,7 +38,7 @@ defmodule Ueberauth.Okta.Mixfile do
   end
 
   defp docs do
-    [extras: ["README.md"]]
+    [extras: ["README.md", "CHANGELOG.md"]]
   end
 
   defp description do
