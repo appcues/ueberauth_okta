@@ -6,7 +6,7 @@ Add `:ueberauth_okta` to your list of dependencies in mix.exs:
 
 ```elixir
 def deps do
-  [{:ueberauth_okta, "~> 0.1"}]
+  [{:ueberauth_okta, "~> 0.2"}]
 end
 ```
 
@@ -41,7 +41,7 @@ config :ueberauth, Ueberauth.Strategy.Okta.OAuth,
 If you haven't already, create a pipeline and setup routes for your callback handler
 ```elixir
 pipeline :auth do
-  Ueberauth.plug "/auth"
+  plug Ueberauth
 end
 scope "/auth" do
   pipe_through [:browser, :auth]
