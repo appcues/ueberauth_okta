@@ -2,6 +2,7 @@ defmodule Ueberauth.Okta.Mixfile do
   use Mix.Project
 
   @version "0.2.0"
+  @source_url "https://github.com/jjcarstens/ueberauth_okta"
 
   def project do
     [app: :ueberauth_okta,
@@ -11,11 +12,15 @@ defmodule Ueberauth.Okta.Mixfile do
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     source_url: "https://github.com/jjcarstens/ueberauth_okta",
-     homepage_url: "https://github.com/jjcarstens/ueberauth_okta",
      description: description(),
      deps: deps(),
-     docs: docs()]
+     docs: docs(),
+     preferred_cli_env: [
+       docs: :docs,
+       "hex.build": :docs,
+       "hex.publish": :docs
+     ]
+    ]
   end
 
   def application do
@@ -32,13 +37,19 @@ defmodule Ueberauth.Okta.Mixfile do
      {:credo, "~> 0.8", only: [:dev, :test]},
 
      # docs dependencies
-     {:earmark, ">= 0.0.0", only: :dev},
-     {:ex_doc, ">= 0.0.0", only: :dev}
+     {:earmark, ">= 0.0.0", only: :docs},
+     {:ex_doc, "~> 0.23", only: :docs}
     ]
   end
 
   defp docs do
-    [extras: ["README.md", "CHANGELOG.md"]]
+    [
+      extras: ["README.md", "CHANGELOG.md"],
+      main: "readme",
+      source_ref: "v#{@version}",
+      source_url: @source_url,
+      skip_undefined_reference_warnings_on: ["CHANGELOG.md"]
+    ]
   end
 
   defp description do
@@ -49,6 +60,6 @@ defmodule Ueberauth.Okta.Mixfile do
     [files: ["lib", "mix.exs", "README.md", "LICENSE"],
      maintainers: ["Jon Carstens"],
       licenses: ["MIT"],
-      links: %{"GitHub": "https://github.com/jjcarstens/ueberauth_okta"}]
+      links: %{"GitHub": @source_url}]
   end
 end
