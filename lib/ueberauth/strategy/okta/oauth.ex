@@ -86,7 +86,7 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
   end
 
   defp validate_code(client, params) do
-    {code, params} = Keyword.pop(params, :code, client.params["code"])
+    code = Keyword.get(params, :code, client.params["code"])
     unless code do
       raise OAuth2.Error, reason: "Missing required key `code` for `#{inspect(__MODULE__)}`"
     end
