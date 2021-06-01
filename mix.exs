@@ -34,11 +34,10 @@ defmodule Ueberauth.Okta.Mixfile do
      {:ueberauth, "~> 0.6"},
 
      # dev/test only dependencies
-     {:credo, "~> 0.8", only: [:dev, :test]},
+     {:credo, "~> 1.5", only: [:dev, :test]},
 
      # docs dependencies
-     {:earmark, ">= 0.0.0", only: :docs},
-     {:ex_doc, "~> 0.23", only: :docs}
+     {:ex_doc, "~> 0.24", only: :docs}
     ]
   end
 
