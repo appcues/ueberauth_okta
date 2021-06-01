@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.2.1
+
+No breaking changes
+
+* Fix some compiler warnings (Thanks @zillou!)
+* Bump development/release deps
+
 ## v0.2.0
 
 Addresses issues between Okta API and OAuth2 implementation (Thanks @Deconstrained)
