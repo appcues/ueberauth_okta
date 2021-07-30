@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.0
+
+Potentially breaking changes
+
+* bump `ueberauth` 0.7.0 - If you require >= 0.6 then you may need to
+  adjust things before updating
+  * support CSRF attack protection bia the `with_state_param` from ueberauth (thanks @Jonathan-Arias!)
+
 ## v0.2.1
 
 No breaking changes
