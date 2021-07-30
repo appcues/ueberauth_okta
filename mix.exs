@@ -56,9 +56,10 @@ defmodule Ueberauth.Okta.Mixfile do
   end
 
   defp package do
-    [files: ["lib", "mix.exs", "README.md", "LICENSE"],
-     maintainers: ["Jon Carstens"],
+    [
+      files: ["CHANGELOG.md", "lib", "mix.exs", "README.md", "LICENSE"],
       licenses: ["MIT"],
-      links: %{"GitHub": @source_url}]
+      links: %{"GitHub": @source_url}
+    ]
   end
 end
