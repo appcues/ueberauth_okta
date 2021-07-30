@@ -94,12 +94,11 @@ defmodule Ueberauth.Strategy.Okta do
   `redirect_uri` in Ueberauth.Strategy.Okta.OAuth config will take precedence over value provided here
   """
   def handle_request!(conn) do
-    state = conn.params["state"] || "state-#{Base.encode16(:crypto.strong_rand_bytes(12))}"
     redirect_uri = conn.params["redirect_uri"] || callback_url(conn)
 
     params = conn
              |> option(:oauth2_params)
-             |> Keyword.put(:state, state)
+             |> with_state_param(conn)
 
     module = option(conn, :oauth2_module)
     url = apply(module, :authorize_url!, [params, [redirect_uri: redirect_uri]])
