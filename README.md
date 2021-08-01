@@ -1,8 +1,16 @@
 # Überauth Okta
-Okta strategy for Überauth
 
-## Setup
-Add `:ueberauth_okta` to your list of dependencies in mix.exs:
+[![Module Version](https://img.shields.io/hexpm/v/ueberauth_okta.svg)](https://hex.pm/packages/ueberauth_okta)
+[![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/ueberauth_okta/)
+[![Total Download](https://img.shields.io/hexpm/dt/ueberauth_okta.svg)](https://hex.pm/packages/ueberauth_okta)
+[![License](https://img.shields.io/hexpm/l/ueberauth_okta.svg)](https://github.com/jjcarstens/ueberauth_okta/blob/master/LICENSE.md)
+[![Last Updated](https://img.shields.io/github/last-commit/jjcarstens/ueberauth_okta.svg)](https://github.com/jjcarstens/ueberauth_okta/commits/master)
+
+> Okta strategy for Überauth.
+
+## Installation
+
+Add `:ueberauth_okta` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -11,13 +19,15 @@ end
 ```
 
 Add the strategy to your applications:
+
 ```elixir
 def application do
   [extra_applications: [:ueberauth_okta]]
 end
 ```
 
-Include the provider in your configuration for Ueberauth
+Include the provider in your configuration for Ueberauth:
+
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
@@ -67,3 +77,9 @@ This is just the start `ueberauth_okta` strategy for support with Okta auth prot
 
 - [x] OAuth 2.0
 - [ ] SAML
+
+## Copyright and License
+
+Copyright (c) 2018 Jon Carstens
+
+Released under the [MIT License](./LICENSE.md).

@@ -3,22 +3,36 @@ defmodule Ueberauth.Strategy.Okta do
   Provides an Ueberauth strategy for authenticating with Okta.
 
   ## Setup
-  You'll need to register a new application with Okta and get the `client_id` and `client_secret`. That setup is out of the scope of this library, but some notes to remember are:
-    * Ensure `Authorization Code` grant type is enabled
-    * You have valid `Login Redirect Urls` listed for the app that correctly reference your callback route(s)
-    * `user` or `group` permissions may need to be added to your Okta app before successfully authenticating
 
-  Include the provider in your configuration for Ueberauth
+  You'll need to register a new application with Okta and get the `client_id`
+  and `client_secret`. That setup is out of the scope of this library, but some
+  notes to remember are:
+
+    * Ensure `Authorization Code` grant type is enabled
+
+    * You have valid `Login Redirect Urls` listed for the app that correctly
+      reference your callback route(s)
+
+    * `user` or `group` permissions may need to be added to your Okta app
+      before successfully authenticating
+
+  Include the provider in your configuration for Ueberauth:
+
       config :ueberauth, Ueberauth,
         providers: [
           okta: { Ueberauth.Strategy.Okta, [] }
         ]
-  Then include the configuration for okta.
+
+  Then include the configuration for Okta:
+
       config :ueberauth, Ueberauth.Strategy.Okta.OAuth,
         client_id: System.get_env("OKTA_CLIENT_ID"),
         client_secret: System.get_env("OKTA_CLIENT_SECRET"),
         site: "https://your-doman.okta.com"
-  If you haven't already, create a pipeline and setup routes for your callback handler
+
+  If you haven't already, create a pipeline and setup routes for your callback
+  handler:
+
       pipeline :auth do
         Ueberauth.plug "/auth"
       end
@@ -26,7 +40,10 @@ defmodule Ueberauth.Strategy.Okta do
         pipe_through [:browser, :auth]
         get "/:provider/callback", AuthController, :callback
       end
-  Create an endpoint for the callback where you will handle the `Ueberauth.Auth` struct
+
+  Create an endpoint for the callback where you will handle the
+  `Ueberauth.Auth` struct:
+
       defmodule MyApp.AuthController do
         use MyApp.Web, :controller
         def callback_phase(%{ assigns: %{ ueberauth_failure: fails } } = conn, _params) do
@@ -36,18 +53,33 @@ defmodule Ueberauth.Strategy.Okta do
           # do things with the auth
         end
       end
-  You can edit the behaviour of the Strategy by including some options when you register your provider.
-  To set the `uid_field`: (Default is `:sub`)
+
+  You can edit the behaviour of the Strategy by including some options when you
+  register your provider.
+
+  To set the `uid_field`: (Default is `:sub`):
+
       config :ueberauth, Ueberauth,
         providers: [
           okta: { Ueberauth.Strategy.Okta, [uid_field: :email] }
         ]
-  To set the params that will be sent in the OAuth request, use the `oauth2_params` key:
+
+  To set the params that will be sent in the OAuth request, use the
+  `oauth2_params` key:
+
       config :ueberauth, Ueberauth,
         providers: [
-          okta: { Ueberauth.Strategy.Okta, [oauth2_params: [scope: "openid email", max_age: 3600]] }
+          okta: {
+            Ueberauth.Strategy.Okta,
+            [oauth2_params: [scope: "openid email", max_age: 3600]]
+          }
         ]
-  See [Okta OAuth2 documentation](https://developer.okta.com/docs/api/resources/oidc#authorize) for list of parameters. _Note that not all parameters are compatible with this flow_
+
+  See [Okta OAuth2
+  documentation](https://developer.okta.com/docs/api/resources/oidc#authorize)
+  for list of parameters.
+
+  _Note that not all parameters are compatible with this flow_.
   """
   use Ueberauth.Strategy, uid_field: :sub,
                           oauth2_module: Ueberauth.Strategy.Okta.OAuth,
