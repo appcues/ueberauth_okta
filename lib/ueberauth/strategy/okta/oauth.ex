@@ -1,13 +1,17 @@
 defmodule Ueberauth.Strategy.Okta.OAuth do
   @moduledoc """
-  An implementation of OAuth2 for okta.
+  An implementation of OAuth2 for Okta.
 
-  Required values are `site`, `client_id`, `client_secret` and should be included in your configuration.
+  Required values are `site`, `client_id`, `client_secret` and should be
+  included in your configuration:
+
       config :ueberauth, Ueberauth.Strategy.Okta.OAuth,
         site: "https://your-doman.okta.com"
         client_id: System.get_env("OKTA_CLIENT_ID"),
         client_secret: System.get_env("OKTA_CLIENT_SECRET")
-  You can also include options from the `OAuth2.Client` struct which will take precedence.
+
+  You can also include options from the `OAuth2.Client` struct which will take
+  precedence.
   """
   require Jason
   use OAuth2.Strategy
@@ -25,9 +29,15 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
   Construct a client for requests to Okta.
 
   Optionally include any OAuth2 options here to be merged with the defaults.
-      Ueberauth.Strategy.Okta.OAuth.client(redirect_uri: "http://localhost:4000/auth/okta/callback")
+
+      Ueberauth.Strategy.Okta.OAuth.client(
+        redirect_uri: "http://localhost:4000/auth/okta/callback"
+      )
+
   This will be setup automatically for you in `Ueberauth.Strategy.Okta`.
-  These options are only useful for usage outside the normal callback phase of Ueberauth.
+
+  These options are only useful for usage outside the normal callback phase of
+  Ueberauth.
   """
   def client(opts \\ []) do
 
