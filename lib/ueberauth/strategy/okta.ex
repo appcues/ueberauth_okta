@@ -127,13 +127,14 @@ defmodule Ueberauth.Strategy.Okta do
   """
   def handle_request!(conn) do
     redirect_uri = conn.params["redirect_uri"] || callback_url(conn)
+    opts = Keyword.merge(conn.private.ueberauth_request_options.options, redirect_uri: redirect_uri)
 
     params = conn
              |> option(:oauth2_params)
              |> with_state_param(conn)
 
     module = option(conn, :oauth2_module)
-    url = apply(module, :authorize_url!, [params, [redirect_uri: redirect_uri]])
+    url = apply(module, :authorize_url!, [params, opts])
     redirect!(conn, url)
   end
 
@@ -145,8 +146,10 @@ defmodule Ueberauth.Strategy.Okta do
   """
   def handle_callback!(%Conn{params: %{"code" => code}} = conn) do
     module = option(conn, :oauth2_module)
+    opts = Keyword.merge(conn.private.ueberauth_request_options.options, redirect_uri: callback_url(conn))
 
-    case apply(module, :get_token, [[code: code], [redirect_uri: callback_url(conn)]]) do
+
+    case apply(module, :get_token, [[code: code], opts]) do
       {:ok, %{token: token}} ->
         fetch_user(conn, token)
       {:error, %{body: %{"error" => key, "error_description" => message}, status_code: status}} ->
@@ -204,8 +207,9 @@ defmodule Ueberauth.Strategy.Okta do
 
   defp fetch_user(conn, token) do
     conn = put_private(conn, :okta_token, token)
+    opts = conn.private.ueberauth_request_options.options
 
-    with {:ok, %OAuth2.Response{status_code: status, body: body}} <- Ueberauth.Strategy.Okta.OAuth.get_user_info(token),
+    with {:ok, %OAuth2.Response{status_code: status, body: body}} <- Ueberauth.Strategy.Okta.OAuth.get_user_info(token, _headers = [], opts),
          {200, user} <- {status, body}
     do
       put_private(conn, :okta_user, user)

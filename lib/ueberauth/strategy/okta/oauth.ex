@@ -40,9 +40,10 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
   Ueberauth.
   """
   def client(opts \\ []) do
+    config = Keyword.take(opts, [:client_id, :client_secret, :site])
+    config = if config != [], do: config, else: Application.fetch_env!(:ueberauth, __MODULE__)
 
-    config = :ueberauth
-             |> Application.fetch_env!(__MODULE__)
+    config = config
              |> validate_config_option!(:client_id)
              |> validate_config_option!(:client_secret)
              |> validate_config_option!(:site)
@@ -65,7 +66,9 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
   end
 
   def get_user_info(token, headers \\ [], opts \\ []) do
-    [token: token]
+    opts = Keyword.merge(opts, token: token)
+
+    opts
     |> client()
     |> Client.get(userinfo_url(), headers, opts)
   end
