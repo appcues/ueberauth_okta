@@ -41,25 +41,14 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
   """
   def client(opts \\ []) do
     config = Application.fetch_env!(:ueberauth, __MODULE__)
-      @defaults
-      |> Keyword.merge(config)
-      |> Keyword.merge(opts)
-      |> validate_config_option!(:client_id)
-      |> validate_config_option!(:client_secret)
-      |> validate_config_option!(:site)
-      |> Client.new()
-      |> OAuth2.Client.put_serializer("application/json", Jason)
 
-    config = config
-             |> validate_config_option!(:client_id)
-             |> validate_config_option!(:client_secret)
-             |> validate_config_option!(:site)
-
-    client_opts = @defaults
-                  |> Keyword.merge(opts)
-                  |> Keyword.merge(config)
-
-    Client.new(client_opts)
+    @defaults
+    |> Keyword.merge(config)
+    |> Keyword.merge(opts)
+    |> validate_config_option!(:client_id)
+    |> validate_config_option!(:client_secret)
+    |> validate_config_option!(:site)
+    |> Client.new()
     |> OAuth2.Client.put_serializer("application/json", Jason)
   end
 
