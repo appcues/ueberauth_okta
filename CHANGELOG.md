@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.3.1 - 2022-08-12
+
+* Support multi-tenant applications by allowing dynamic Okta configs in the conn
+  (Thanks @ryanzidago :heart:)
+
 ## v0.3.0 - 2021-07-30
 
 Potentially breaking changes
