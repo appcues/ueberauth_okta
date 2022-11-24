@@ -94,6 +94,7 @@ defmodule Ueberauth.Strategy.Okta do
   @doc """
   Includes the credentials from the Okta response.
   """
+  @impl Ueberauth.Strategy
   def credentials(conn) do
     token = conn.private.okta_token
 
@@ -110,6 +111,7 @@ defmodule Ueberauth.Strategy.Okta do
   @doc """
   Stores the raw information (including the token) obtained from the Okta callback.
   """
+  @impl Ueberauth.Strategy
   def extra(conn) do
     %Extra {
       raw_info: %{
@@ -125,6 +127,7 @@ defmodule Ueberauth.Strategy.Okta do
   Supports `state` and `redirect_uri` params which are required for Okta /authorize request. These will also be generated if omitted.
   `redirect_uri` in Ueberauth.Strategy.Okta.OAuth config will take precedence over value provided here
   """
+  @impl Ueberauth.Strategy
   def handle_request!(conn) do
     redirect_uri = conn.params["redirect_uri"] || callback_url(conn)
     opts = Keyword.merge(conn.private.ueberauth_request_options.options, redirect_uri: redirect_uri)
@@ -144,6 +147,7 @@ defmodule Ueberauth.Strategy.Okta do
   When there is a failure from Okta the failure is included in the
   `ueberauth_failure` struct. Otherwise the information returned from Okta is returned in the `Ueberauth.Auth` struct.
   """
+  @impl Ueberauth.Strategy
   def handle_callback!(%Conn{params: %{"code" => code}} = conn) do
     module = option(conn, :oauth2_module)
     opts = Keyword.merge(conn.private.ueberauth_request_options.options, redirect_uri: callback_url(conn))
@@ -167,6 +171,7 @@ defmodule Ueberauth.Strategy.Okta do
   @doc """
   Cleans up the private area of the connection used for passing the raw Okta response around during the callback.
   """
+  @impl Ueberauth.Strategy
   def handle_cleanup!(conn) do
     conn
     |> put_private(:okta_user, nil)
@@ -176,6 +181,7 @@ defmodule Ueberauth.Strategy.Okta do
   @doc """
   Fetches the fields to populate the info section of the `Ueberauth.Auth` struct.
   """
+  @impl Ueberauth.Strategy
   def info(conn) do
     user = conn.private.okta_user
 
@@ -194,6 +200,7 @@ defmodule Ueberauth.Strategy.Okta do
   @doc """
   Fetches the uid field from the Okta response. This defaults to the option `uid_field` which in-turn defaults to `sub`
   """
+  @impl Ueberauth.Strategy
   def uid(conn) do
     conn
     |> option(:uid_field)

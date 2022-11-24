@@ -73,12 +73,14 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
 
   # Strategy Callbacks
 
+  @impl OAuth2.Strategy
   def authorize_url(client, params) do
     client
     |> put_param(:nonce, Base.encode16(:crypto.strong_rand_bytes(32)))
     |> AuthCode.authorize_url(params)
   end
 
+  @impl OAuth2.Strategy
   def get_token(client, params, headers) do
     client
     |> put_header("Accept", "application/json")
