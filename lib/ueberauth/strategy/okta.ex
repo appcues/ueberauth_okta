@@ -16,19 +16,21 @@ defmodule Ueberauth.Strategy.Okta do
     * `user` or `group` permissions may need to be added to your Okta app
       before successfully authenticating
 
-  Include the provider in your configuration for Ueberauth:
+  Include the provider in your configuration for Ueberauth with the required
+  configuration for Okta (`site`, `client_id`, and `client_secret`):
 
       config :ueberauth, Ueberauth,
         providers: [
-          okta: { Ueberauth.Strategy.Okta, [] }
+          okta: {Ueberauth.Strategy.Okta, [
+            client_id: System.get_env("OKTA_CLIENT_ID"),
+            client_secret: System.get_env("OKTA_CLIENT_SECRET"),
+            site: "https://your-doman.okta.com"
+          ]}
         ]
 
-  Then include the configuration for Okta:
-
-      config :ueberauth, Ueberauth.Strategy.Okta.OAuth,
-        client_id: System.get_env("OKTA_CLIENT_ID"),
-        client_secret: System.get_env("OKTA_CLIENT_SECRET"),
-        site: "https://your-doman.okta.com"
+  You can also include options for the underlying OAuth strategy. If using the
+  default (`Ueberauth.Strategy.Okta.OAuth`), then options for `OAuth2.Client.t()`
+  are supported
 
   If you haven't already, create a pipeline and setup routes for your callback
   handler:
@@ -81,9 +83,13 @@ defmodule Ueberauth.Strategy.Okta do
 
   _Note that not all parameters are compatible with this flow_.
   """
-  use Ueberauth.Strategy, uid_field: :sub,
-                          oauth2_module: Ueberauth.Strategy.Okta.OAuth,
-                          oauth2_params: [scope: "openid email profile"]
+  use Ueberauth.Strategy,
+    uid_field: :sub,
+    oauth2_module: Ueberauth.Strategy.Okta.OAuth,
+    oauth2_params: [scope: "openid email profile"],
+    authorize_url: "/oauth2/v1/authorize",
+    token_url: "/oauth2/v1/token",
+    userinfo_url: "/oauth2/v1/userinfo"
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -113,7 +119,7 @@ defmodule Ueberauth.Strategy.Okta do
   """
   @impl Ueberauth.Strategy
   def extra(conn) do
-    %Extra {
+    %Extra{
       raw_info: %{
         token: conn.private.okta_token,
         user: conn.private.okta_user
@@ -124,17 +130,20 @@ defmodule Ueberauth.Strategy.Okta do
   @doc """
   Handles the initial redirect to the okta authentication page.
 
-  Supports `state` and `redirect_uri` params which are required for Okta /authorize request. These will also be generated if omitted.
-  `redirect_uri` in Ueberauth.Strategy.Okta.OAuth config will take precedence over value provided here
+  Supports `state` and `redirect_uri` params which are required for Okta
+  /authorize request. These will also be generated if omitted.
+  `redirect_uri` from the strategy config will take precedence over value
+  provided here
   """
   @impl Ueberauth.Strategy
   def handle_request!(conn) do
     redirect_uri = conn.params["redirect_uri"] || callback_url(conn)
-    opts = Keyword.merge(conn.private.ueberauth_request_options.options, redirect_uri: redirect_uri)
+    opts = Keyword.merge(options(conn), redirect_uri: redirect_uri)
 
-    params = conn
-             |> option(:oauth2_params)
-             |> with_state_param(conn)
+    params =
+      conn
+      |> option(:oauth2_params)
+      |> with_state_param(conn)
 
     module = option(conn, :oauth2_module)
     url = apply(module, :authorize_url!, [params, opts])
@@ -150,14 +159,15 @@ defmodule Ueberauth.Strategy.Okta do
   @impl Ueberauth.Strategy
   def handle_callback!(%Conn{params: %{"code" => code}} = conn) do
     module = option(conn, :oauth2_module)
-    opts = Keyword.merge(conn.private.ueberauth_request_options.options, redirect_uri: callback_url(conn))
-
+    opts = Keyword.merge(options(conn), redirect_uri: callback_url(conn))
 
     case apply(module, :get_token, [[code: code], opts]) do
       {:ok, %{token: token}} ->
         fetch_user(conn, token)
+
       {:error, %{body: %{"error" => key, "error_description" => message}, status_code: status}} ->
         set_errors!(conn, error("#{key} [#{status}]", message))
+
       err ->
         set_errors!(conn, error("Unknown Error fetching token", inspect(err)))
     end
@@ -214,18 +224,23 @@ defmodule Ueberauth.Strategy.Okta do
 
   defp fetch_user(conn, token) do
     conn = put_private(conn, :okta_token, token)
-    opts = conn.private.ueberauth_request_options.options
+    module = option(conn, :oauth2_module)
+    userinfo_url = option(conn, :userinfo_url)
 
-    with {:ok, %OAuth2.Response{status_code: status, body: body}} <- Ueberauth.Strategy.Okta.OAuth.get_user_info(token, _headers = [], opts),
-         {200, user} <- {status, body}
-    do
+    opts =
+      options(conn)
+      |> Keyword.put(:token, token)
+
+    with {:ok, user} <- module.get_user_info(userinfo_url, _headers = [], opts) do
       put_private(conn, :okta_user, user)
     else
       {:error, %OAuth2.Error{reason: reason}} ->
         set_errors!(conn, error("OAuth2", inspect(reason)))
-      {401, _} ->
+
+      {:error, %{status_code: 401}} ->
         set_errors!(conn, error("Okta token [401]", "unauthorized"))
-      {status, body} when status in 400..599 ->
+
+      {:error, %{status_code: status, body: body}} when status in 400..599 ->
         set_errors!(conn, error("Okta [#{status}]", inspect(body)))
     end
   end

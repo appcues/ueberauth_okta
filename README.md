@@ -26,27 +26,27 @@ def application do
 end
 ```
 
-Include the provider in your configuration for Ueberauth:
-
-```elixir
-config :ueberauth, Ueberauth,
-  providers: [
-    okta: { Ueberauth.Strategy.Okta, [] }
-  ]
-```
-
 You'll need to register a new application with Okta and get the `client_id` and `client_secret`. That setup is out of the scope of this library, but some notes to remember are:
   * Ensure `Authorization Code` grant type is enabled
   * You have valid `Login Redirect Urls` listed for the app that correctly reference your callback route(s)
   * `user` and/or `group` permissions may need to be added to your Okta app before successfully authenticating
 
-Then include the configuration for okta.
+Include these settings in your provider configuration for Ueberauth:
+
 ```elixir
-config :ueberauth, Ueberauth.Strategy.Okta.OAuth,
-  client_id: System.get_env("OKTA_CLIENT_ID"),
-  client_secret: System.get_env("OKTA_CLIENT_SECRET"),
-  site: "https://your-doman.okta.com"
+config :ueberauth, Ueberauth,
+  providers: [
+    okta: { Ueberauth.Strategy.Okta, [
+      client_id: System.get_env("OKTA_CLIENT_ID"),
+      client_secret: System.get_env("OKTA_CLIENT_SECRET"),
+      site: "https://your-doman.okta.com"
+    ] }
+  ]
 ```
+
+You can also include options for the underlying OAuth strategy. If using the
+default (`Ueberauth.Strategy.Okta.OAuth`), then options for `OAuth2.Client.t()`
+are supported.
 
 If you haven't already, create a pipeline and setup routes for your callback handler
 ```elixir
