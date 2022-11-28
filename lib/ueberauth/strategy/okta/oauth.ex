@@ -57,6 +57,7 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
     |> validate_config_option!(:client_id)
     |> validate_config_option!(:client_secret)
     |> validate_config_option!(:site)
+    |> Keyword.put(:strategy, __MODULE__)
     |> Client.new()
     |> Client.put_serializer("application/json", Jason)
   end
