@@ -44,6 +44,10 @@ config :ueberauth, Ueberauth,
   ]
 ```
 
+If you have configured a custom Okta Authorization Server, you can specify it using the
+`authorization_server_id` key. This will cause request URLs to be adjusted to include the ID,
+saving you the effort of configuring the `authorization_url`, `token_url` etc... directly.
+
 You can also include options for the underlying OAuth strategy. If using the
 default (`Ueberauth.Strategy.Okta.OAuth`), then options for `OAuth2.Client.t()`
 are supported.
