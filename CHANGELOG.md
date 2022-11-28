@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v1.0.0 - 2022-11-28
+
+This is a breaking change that removes the ability to set OAuth settings in the
+application environment via `Ueberauth.Strategy.Okta.OAuth` and instead relies
+on the settings coming in from the Ueberauth `:providers` setup.
+
+* Support `:authorization_server_id` for custom Okta Authorization Servers. This will
+  add the id to the default urls used in the process (Thanks @giddie!)
+
 ## v0.3.1 - 2022-08-12
 
 * Support multi-tenant applications by allowing dynamic Okta configs in the conn

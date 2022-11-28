@@ -1,7 +1,7 @@
 defmodule Ueberauth.Okta.Mixfile do
   use Mix.Project
 
-  @version "0.3.1"
+  @version "1.0.0"
   @source_url "https://github.com/jjcarstens/ueberauth_okta"
 
   def project do
