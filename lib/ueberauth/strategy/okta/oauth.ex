@@ -52,6 +52,8 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
   """
   def client(opts \\ []) do
     opts
+    |> configure_url(:authorize, "/authorize")
+    |> configure_url(:token, "/token")
     |> validate_config_option!(:client_id)
     |> validate_config_option!(:client_secret)
     |> validate_config_option!(:site)
@@ -68,7 +70,12 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
     |> Client.authorize_url!(params)
   end
 
-  def get_user_info(userinfo_url, headers \\ [], opts \\ []) do
+  def get_user_info(headers \\ [], opts \\ []) do
+    userinfo_url =
+      opts
+      |> configure_url(:userinfo, "/userinfo")
+      |> Keyword.fetch!(:userinfo_url)
+
     client(opts)
     |> Client.get(userinfo_url, headers, opts)
     |> case do
@@ -134,5 +141,20 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
 
   defp validate_config_option!(_, _) do
     raise "[Ueberauth.Strategy.Okta.OAuth] strategy options must be a keyword list"
+  end
+
+  # Constructs default values for e.g. authorize_url based on the authorization_server_id, if it's
+  # provided. Falls back to the global default for Okta. If the relevant config option is
+  # already in opts (e.g. authorize_url), the existing option is always preferred.
+  defp configure_url(opts, prefix, path) do
+    Keyword.put_new_lazy(opts, :"#{prefix}_url", fn ->
+      case opts[:authorization_server_id] do
+        nil ->
+          "/oauth2/v1#{path}"
+
+        authorization_server_id when is_binary(authorization_server_id) ->
+          "/oauth2/#{authorization_server_id}/v1#{path}"
+      end
+    end)
   end
 end
