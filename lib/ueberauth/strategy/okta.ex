@@ -28,6 +28,10 @@ defmodule Ueberauth.Strategy.Okta do
           ]}
         ]
 
+  If you have configured a custom Okta Authorization Server, you can specify it using the
+  `authorization_server_id` key. This will cause request URLs to be adjusted to include the ID,
+  saving you the effort of configuring the `authorization_url`, `token_url` etc... directly.
+
   You can also include options for the underlying OAuth strategy. If using the
   default (`Ueberauth.Strategy.Okta.OAuth`), then options for `OAuth2.Client.t()`
   are supported
@@ -225,13 +229,12 @@ defmodule Ueberauth.Strategy.Okta do
   defp fetch_user(conn, token) do
     conn = put_private(conn, :okta_token, token)
     module = option(conn, :oauth2_module)
-    userinfo_url = option(conn, :userinfo_url)
 
     opts =
       options(conn)
       |> Keyword.put(:token, token)
 
-    with {:ok, user} <- module.get_user_info(userinfo_url, _headers = [], opts) do
+    with {:ok, user} <- module.get_user_info(_headers = [], opts) do
       put_private(conn, :okta_user, user)
     else
       {:error, %OAuth2.Error{reason: reason}} ->
