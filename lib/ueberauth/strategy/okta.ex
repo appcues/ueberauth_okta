@@ -141,8 +141,7 @@ defmodule Ueberauth.Strategy.Okta do
   """
   @impl Ueberauth.Strategy
   def handle_request!(conn) do
-    redirect_uri = conn.params["redirect_uri"] || callback_url(conn)
-    opts = Keyword.merge(options(conn), redirect_uri: redirect_uri)
+    opts = Keyword.merge(options(conn), redirect_uri: callback_url(conn))
 
     params =
       conn
