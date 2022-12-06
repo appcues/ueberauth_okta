@@ -4,88 +4,29 @@ defmodule Ueberauth.Strategy.Okta do
 
   ## Setup
 
-  You'll need to register a new application with Okta and get the `client_id`
-  and `client_secret`. That setup is out of the scope of this library, but some
-  notes to remember are:
+  Include the provider in your configuration for Ueberauth with any
+  applicable configuration options (Okta and OAuth2 options are supported):
 
-    * Ensure `Authorization Code` grant type is enabled
+  ```elixir
+  config :ueberauth, Ueberauth,
+  providers: [
+    okta: {Ueberauth.Strategy.Okta, [client_id: "12345"]}
+  ]
+  ```
 
-    * You have valid `Login Redirect Urls` listed for the app that correctly
-      reference your callback route(s)
+  **Note**: Provider options are evaluated at compile time by default (see [Plug](https://hexdocs.pm/plug/1.14.0/Plug.html#module-plugs))
+  so if you use `runtime.exs` or another mechanism to load options into the
+  Application environment, you'll want to use the `Ueberauth.Strategy.Okta.OAuth`
+  scope. See `Ueberauth.Strategy.Okta.OAuth` module doc for more details.
 
-    * `user` or `group` permissions may need to be added to your Okta app
-      before successfully authenticating
+  ### Okta Options
 
-  Include the provider in your configuration for Ueberauth with the required
-  configuration for Okta (`site`, `client_id`, and `client_secret`):
-
-      config :ueberauth, Ueberauth,
-        providers: [
-          okta: {Ueberauth.Strategy.Okta, [
-            client_id: System.get_env("OKTA_CLIENT_ID"),
-            client_secret: System.get_env("OKTA_CLIENT_SECRET"),
-            site: "https://your-doman.okta.com"
-          ]}
-        ]
-
-  If you have configured a custom Okta Authorization Server, you can specify it using the
-  `authorization_server_id` key. This will cause request URLs to be adjusted to include the ID,
-  saving you the effort of configuring the `authorization_url`, `token_url` etc... directly.
-
-  You can also include options for the underlying OAuth strategy. If using the
-  default (`Ueberauth.Strategy.Okta.OAuth`), then options for `OAuth2.Client.t()`
-  are supported
-
-  If you haven't already, create a pipeline and setup routes for your callback
-  handler:
-
-      pipeline :auth do
-        Ueberauth.plug "/auth"
-      end
-      scope "/auth" do
-        pipe_through [:browser, :auth]
-        get "/:provider/callback", AuthController, :callback
-      end
-
-  Create an endpoint for the callback where you will handle the
-  `Ueberauth.Auth` struct:
-
-      defmodule MyApp.AuthController do
-        use MyApp.Web, :controller
-        def callback_phase(%{ assigns: %{ ueberauth_failure: fails } } = conn, _params) do
-          # do things with the failure
-        end
-        def callback_phase(%{ assigns: %{ ueberauth_auth: auth } } = conn, params) do
-          # do things with the auth
-        end
-      end
-
-  You can edit the behaviour of the Strategy by including some options when you
-  register your provider.
-
-  To set the `uid_field`: (Default is `:sub`):
-
-      config :ueberauth, Ueberauth,
-        providers: [
-          okta: { Ueberauth.Strategy.Okta, [uid_field: :email] }
-        ]
-
-  To set the params that will be sent in the OAuth request, use the
-  `oauth2_params` key:
-
-      config :ueberauth, Ueberauth,
-        providers: [
-          okta: {
-            Ueberauth.Strategy.Okta,
-            [oauth2_params: [scope: "openid email", max_age: 3600]]
-          }
-        ]
-
-  See [Okta OAuth2
+  * `:oauth2_module` - OAuth module to use (default: `Ueberauth.Strategy.Okta.OAuth`)
+  * `:oauth2_params` - query parameters for the oauth request. See [Okta OAuth2
   documentation](https://developer.okta.com/docs/api/resources/oidc#authorize)
-  for list of parameters.
-
-  _Note that not all parameters are compatible with this flow_.
+  for list of parameters. _Note that not all parameters are compatible with this flow_.
+  (default: `[scope: "openid email profile"]`)
+  * `:uid_field` - default: `:sub`
   """
   use Ueberauth.Strategy,
     uid_field: :sub,
@@ -141,7 +82,10 @@ defmodule Ueberauth.Strategy.Okta do
   """
   @impl Ueberauth.Strategy
   def handle_request!(conn) do
-    opts = Keyword.merge(options(conn), redirect_uri: callback_url(conn))
+    opts =
+      options(conn)
+      |> Keyword.put(:redirect_uri, callback_url(conn))
+      |> add_oauth_options(conn)
 
     params =
       conn
@@ -162,7 +106,11 @@ defmodule Ueberauth.Strategy.Okta do
   @impl Ueberauth.Strategy
   def handle_callback!(%Conn{params: %{"code" => code}} = conn) do
     module = option(conn, :oauth2_module)
-    opts = Keyword.merge(options(conn), redirect_uri: callback_url(conn))
+
+    opts =
+      options(conn)
+      |> Keyword.put(:redirect_uri, callback_url(conn))
+      |> add_oauth_options(conn)
 
     case apply(module, :get_token, [[code: code], opts]) do
       {:ok, %{token: token}} ->
@@ -249,5 +197,11 @@ defmodule Ueberauth.Strategy.Okta do
 
   defp option(conn, key) do
     Keyword.get(options(conn), key) || Keyword.get(default_options(), key)
+  end
+
+  defp add_oauth_options(opts, conn) do
+    oauth_opts = Application.get_env(:ueberauth, Ueberauth.Strategy.Okta.OAuth, [])
+    oauth_opts = oauth_opts[strategy_name(conn)] || oauth_opts
+    Keyword.merge(opts, oauth_opts)
   end
 end

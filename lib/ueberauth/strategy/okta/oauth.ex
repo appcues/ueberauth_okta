@@ -2,46 +2,50 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
   @moduledoc """
   An implementation of OAuth2 for Okta.
 
-  Required values are `site`, `client_id`, `client_secret` and should be
-  included in your provider configuration:
+  Supported options:
+  * `:site` - (**required**) Full request URL
+  * `:client_id` - (**required**) Okta client ID
+  * `:client_secret` - (**required**) Okta client secret
+  * `:authorize_url` - default:  "/oauth2/v1/authorize",
+  * `:token_url` - default:  "/oauth2/v1/token",
+  * `:userinfo_url` - default:  "/oauth2/v1/userinfo"
+  * `:authorization_server_id` - If supplied, URLs for the request will be adjusted to include
+    the custom Okta Authorization Server ID
+  * Any `OAuth2.Client` option
 
-      config :ueberauth, Ueberauth,
-        providers: [
-          okta: {Ueberauth.Strategy.Okta, [
-            site: "https://your-doman.okta.com"
-            client_id: System.get_env("OKTA_CLIENT_ID"),
-            client_secret: System.get_env("OKTA_CLIENT_SECRET")
-          ]}
-        ]
+  These options can be provided with the provider settings, or under the `Ueberauth.Strategy.Okta.OAuth` scope:
 
-  You can also include options from the `OAuth2.Client.t()` struct which will take
-  precedence.
+  ```elixir
+  config :ueberauth, Ueberauth.Strategy.Okta.OAuth,
+  site: "https://your-doman.okta.com"
+  client_id: System.get_env("OKTA_CLIENT_ID"),
+  client_secret: System.get_env("OKTA_CLIENT_SECRET")
+  ```
+
+  ### Multiple Providers (Multitenant)
+
+  To support multiple providers, scope the settings to the same provider key you
+  used when configuring `Ueberauth`:
+
+  ```elixir
+  config :ueberauth, Ueberauth,
+  providers: [
+    okta: {Ueberauth.Strategy.Okta, []}
+  ]
+
+  config :ueberauth, Ueberauth.Strategy.Okta.OAuth,
+  okta: [
+    site: "https://your-doman.okta.com"
+    client_id: System.get_env("OKTA_CLIENT_ID"),
+    client_secret: System.get_env("OKTA_CLIENT_SECRET")
+  ]
+  ```
+
+  Scoped OAuth settings will take precedence over the global settings
   """
   use OAuth2.Strategy
 
   alias OAuth2.{Client, Strategy.AuthCode}
-
-  @after_compile __MODULE__
-  def __after_compile__(env, _bytecode) do
-    case Application.get_env(:ueberauth, Ueberauth.Strategy.Okta.OAuth, []) do
-      [] ->
-        env
-
-      opts ->
-        sample = [providers: [okta: {Ueberauth.Strategy.Okta, opts}]]
-
-        raise """
-        Cannot use `Ueberauth.Strategy.Okta.OAuth` in Application env
-
-        Using `config :ueberauth, Ueberauth.Strategy.Okta.OAuth` is deprecated.
-
-        Instead, put your options for Ueberauth.Strategy.Okta.OAuth in your provider
-        settings for `Ueberauth.Strategy.Okta`:
-
-        config :ueberauth, Ueberauth, #{inspect(sample, pretty: true)}
-        """
-    end
-  end
 
   @doc """
   Construct a client for requests to Okta.
