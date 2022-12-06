@@ -21,45 +21,95 @@ Add `:ueberauth_okta` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:ueberauth_okta, "~> 0.2"}]
+  [{:ueberauth_okta, "~> 1.0"}]
 end
 ```
 
-Add the strategy to your applications:
+## Setup
 
-```elixir
-def application do
-  [extra_applications: [:ueberauth_okta]]
-end
-```
+You'll need to register a new application with Okta and get the `client_id`
+and `client_secret`. That setup is out of the scope of this library, but some
+notes to remember are:
 
-You'll need to register a new application with Okta and get the `client_id` and `client_secret`. That setup is out of the scope of this library, but some notes to remember are:
   * Ensure `Authorization Code` grant type is enabled
-  * You have valid `Login Redirect Urls` listed for the app that correctly reference your callback route(s)
-  * `user` and/or `group` permissions may need to be added to your Okta app before successfully authenticating
+  * You have valid `Login Redirect Urls` listed for the app that correctly
+    reference your callback route(s)
+  * `user` or `group` permissions may need to be added to your Okta app
+    before successfully authenticating
 
-Include these settings in your provider configuration for Ueberauth:
+Include the provider in your configuration for Ueberauth with any
+applicable configuration options (Okta and OAuth2 options are supported):
 
 ```elixir
 config :ueberauth, Ueberauth,
   providers: [
-    okta: { Ueberauth.Strategy.Okta, [
-      client_id: System.get_env("OKTA_CLIENT_ID"),
-      client_secret: System.get_env("OKTA_CLIENT_SECRET"),
-      site: "https://your-doman.okta.com"
-    ] }
+    okta: {Ueberauth.Strategy.Okta, [client_id: "12345"]}
   ]
 ```
 
-If you have configured a custom Okta Authorization Server, you can specify it using the
-`authorization_server_id` key. This will cause request URLs to be adjusted to include the ID,
-saving you the effort of configuring the `authorization_url`, `token_url` etc... directly.
+**Note**: Provider options are evaluated at compile time by default (see [Plug](https://hexdocs.pm/plug/1.14.0/Plug.html#module-plugs))
+so if you use `runtime.exs` or another mechanism to load options into the
+Application environment, you'll want to use the `Ueberauth.Strategy.Okta.OAuth`
+scope. See below for details
 
-You can also include options for the underlying OAuth strategy. If using the
-default (`Ueberauth.Strategy.Okta.OAuth`), then options for `OAuth2.Client.t()`
-are supported.
+### Okta Options
+
+* `:oauth2_module` - OAuth module to use (default: `Ueberauth.Strategy.Okta.OAuth`)
+* `:oauth2_params` - query parameters for the oauth request. See [Okta OAuth2
+  documentation](https://developer.okta.com/docs/api/resources/oidc#authorize)
+  for list of parameters. _Note that not all parameters are compatible with this flow_.
+  (default: `[scope: "openid email profile"]`)
+* `:uid_field` - default: `:sub`
+
+### OAuth2 options
+
+The default OAuth2 module for making the requests is `Ueberauth.Strategy.Okta.OAuth`
+which uses the following options:
+
+* `:site` - (**required**) Full request URL
+* `:client_id` - (**required**) Okta client ID
+* `:client_secret` - (**required**) Okta client secret
+* `:authorize_url` - default:  "/oauth2/v1/authorize",
+* `:token_url` - default:  "/oauth2/v1/token",
+* `:userinfo_url` - default:  "/oauth2/v1/userinfo"
+* `:authorization_server_id` - If supplied, URLs for the request will be adjusted to include
+    the custom Okta Authorization Server ID
+* Any `OAuth2.Client.t()` option
+
+These options can be provided with the provider settings, or under the `Ueberauth.Strategy.Okta.OAuth` scope:
+
+```elixir
+config :ueberauth, Ueberauth.Strategy.Okta.OAuth,
+  site: "https://your-doman.okta.com"
+  client_id: System.get_env("OKTA_CLIENT_ID"),
+  client_secret: System.get_env("OKTA_CLIENT_SECRET")
+```
+
+#### Multiple Providers (Multitenant)
+
+To support multiple providers, scope the settings to the same provider key you
+used when configuring `Ueberauth`:
+
+```elixir
+config :ueberauth, Ueberauth,
+  providers: [
+    okta: {Ueberauth.Strategy.Okta, []}
+  ]
+
+config :ueberauth, Ueberauth.Strategy.Okta.OAuth,
+  okta: [
+    site: "https://your-doman.okta.com"
+    client_id: System.get_env("OKTA_CLIENT_ID"),
+    client_secret: System.get_env("OKTA_CLIENT_SECRET")
+  ]
+```
+
+Scoped OAuth settings will take precedence over the global settings
+
+### Adding Request Flow
 
 If you haven't already, create a pipeline and setup routes for your callback handler
+
 ```elixir
 pipeline :auth do
   plug Ueberauth
@@ -71,6 +121,7 @@ end
 ```
 
 Create an endpoint for the callback where you will handle the `Ueberauth.Auth` struct
+
 ```elixir
 defmodule MyApp.AuthController do
   use MyApp.Web, :controller
@@ -83,14 +134,8 @@ defmodule MyApp.AuthController do
 end
 ```
 
-## Goals
-This is just the start `ueberauth_okta` strategy for support with Okta auth protocols. Initially, I will mainly be focused on Okta OAuth, but once that is up I will move onto other autentication routes I'd also like to support (see below):
-
-- [x] OAuth 2.0
-- [ ] SAML
-
 ## Copyright and License
 
-Copyright (c) 2018 Jon Carstens
+Copyright (c) 2022 Jon Carstens
 
 Released under the [MIT License](./LICENSE.md).
