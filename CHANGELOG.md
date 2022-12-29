@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v1.1.0 - 2022-12-29
+
+This essentially negates v1.0.0 and adds back the `Ueberauth.Strategy.Okta.OAuth`
+configuration scope to support better runtime option management. Both this scope
+and using the `:providers` key in Ueberauth config are supported.
+
+* Fix support with `runtime.exs` files and runtime evaluations of options.
+* Support `:providers` in `Ueberauth.Strategy.Okta.OAuth` to allow for
+  multi-tenant support
+
 ## v1.0.0 - 2022-11-28
 
 This is a breaking change that removes the ability to set OAuth settings in the
