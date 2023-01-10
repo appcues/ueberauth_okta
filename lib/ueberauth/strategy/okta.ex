@@ -201,7 +201,15 @@ defmodule Ueberauth.Strategy.Okta do
 
   defp add_oauth_options(opts, conn) do
     oauth_opts = Application.get_env(:ueberauth, Ueberauth.Strategy.Okta.OAuth, [])
-    oauth_opts = oauth_opts[strategy_name(conn)] || oauth_opts
+
+    multitenant_key =
+      try do
+        conn |> strategy_name() |> String.to_existing_atom()
+      rescue
+        ArgumentError -> nil
+      end
+
+    oauth_opts = oauth_opts[multitenant_key] || oauth_opts
     Keyword.merge(opts, oauth_opts)
   end
 end
