@@ -201,7 +201,19 @@ defmodule Ueberauth.Strategy.Okta do
 
   defp add_oauth_options(opts, conn) do
     oauth_opts = Application.get_env(:ueberauth, Ueberauth.Strategy.Okta.OAuth, [])
-    oauth_opts = oauth_opts[strategy_name(conn)] || oauth_opts
-    Keyword.merge(opts, oauth_opts)
+
+    # The Ueberauth helper function says strategy_name, but this is the provider
+    # name used from the Application config
+    provider = strategy_name(conn)
+    provider_str = to_string(provider)
+
+    provider_opts =
+      Enum.find_value(oauth_opts, oauth_opts, fn
+        {^provider, v} -> v
+        {^provider_str, v} -> v
+        _ -> false
+      end)
+
+    Keyword.merge(opts, provider_opts)
   end
 end
