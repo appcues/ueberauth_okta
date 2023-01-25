@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v1.1.1 - 2023-01-25
+
+* Fix an issue looking up provider options in the Application config which
+  may be stored or referenced as a string (thanks @giddie :heart:)
+
 ## v1.1.0 - 2022-12-29
 
 This essentially negates v1.0.0 and adds back the `Ueberauth.Strategy.Okta.OAuth`
