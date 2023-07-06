@@ -8,13 +8,6 @@
 
 > Okta strategy for Überauth.
 
-## Call for maintainers!
-
-If you have any interest in taking over or maintaining this library, please
-reach out to me. I wrote this for use at a previous company, but am no longer
-there nor do I use Okta anymore. I try to keep this updated as best I can,
-but it is not actively maintained and help would be much appreciated :heart:
-
 ## Installation
 
 Add `:ueberauth_okta` to your list of dependencies in `mix.exs`:
