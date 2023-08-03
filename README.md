@@ -73,7 +73,7 @@ These options can be provided with the provider settings, or under the `Ueberaut
 
 ```elixir
 config :ueberauth, Ueberauth.Strategy.Okta.OAuth,
-  site: "https://your-doman.okta.com"
+  site: "https://your-doman.okta.com",
   client_id: System.get_env("OKTA_CLIENT_ID"),
   client_secret: System.get_env("OKTA_CLIENT_SECRET")
 ```
