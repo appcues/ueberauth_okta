@@ -180,6 +180,7 @@ defmodule Ueberauth.Strategy.Okta do
     opts =
       options(conn)
       |> Keyword.put(:token, token)
+      |> add_oauth_options(conn)
 
     with {:ok, user} <- module.get_user_info(_headers = [], opts) do
       put_private(conn, :okta_user, user)
