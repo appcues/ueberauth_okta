@@ -4,7 +4,7 @@ jobs:
   build:
     parallelism: 1
     docker:
-      - image: circleci/elixir:1.14
+      - image: cimg/elixir:1.15.5-erlang-25.3.2
 
     working_directory: ~/app
 
