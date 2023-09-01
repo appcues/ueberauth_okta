@@ -33,7 +33,8 @@ defmodule Ueberauth.Okta.Mixfile do
       {:oauth2, "~> 2.0"},
       {:ueberauth, "~> 0.7"},
       {:credo, "~> 1.5", only: [:dev, :test]},
-      {:ex_doc, ">= 0.0.0", only: :docs, runtime: false}
+      {:ex_doc, ">= 0.0.0", only: :docs, runtime: false},
+      {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
 
