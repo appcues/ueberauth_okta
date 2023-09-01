@@ -37,4 +37,4 @@ jobs:
 
       - store_test_results:
           # Read more: https://circleci.com/docs/2.0/collect-test-data/
-          path: _build/test/lib/ueberauth_okta # Replace with the name of your :app
+          path: _build/test/lib/ueberauth_okta
