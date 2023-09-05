@@ -14,12 +14,7 @@ defmodule Ueberauth.Okta.Mixfile do
       start_permanent: Mix.env() == :prod,
       package: package(),
       deps: deps(),
-      docs: docs(),
-      preferred_cli_env: [
-        docs: :docs,
-        "hex.build": :docs,
-        "hex.publish": :docs
-      ]
+      docs: docs()
     ]
   end
 
