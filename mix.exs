@@ -2,7 +2,7 @@ defmodule Ueberauth.Okta.Mixfile do
   use Mix.Project
 
   @version "1.1.2"
-  @source_url "https://github.com/jjcarstens/ueberauth_okta"
+  @source_url "https://github.com/appcues/ueberauth_okta"
 
   def project do
     [
@@ -33,7 +33,7 @@ defmodule Ueberauth.Okta.Mixfile do
       {:oauth2, "~> 2.0"},
       {:ueberauth, "~> 0.7"},
       {:credo, "~> 1.5", only: [:dev, :test]},
-      {:ex_doc, "~> 0.27", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.30", only: :dev, runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false}
     ]
   end
