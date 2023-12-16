@@ -82,14 +82,16 @@ defmodule Ueberauth.Strategy.Okta do
   """
   @impl Ueberauth.Strategy
   def handle_request!(conn) do
-    opts =
+    {oauth2_params, opts} =
       options(conn)
       |> Keyword.put(:redirect_uri, callback_url(conn))
       |> add_oauth_options(conn)
+      |> Keyword.pop(:oauth2_params, [])
 
     params =
       conn
       |> option(:oauth2_params)
+      |> Keyword.merge(oauth2_params)
       |> with_state_param(conn)
 
     module = option(conn, :oauth2_module)
