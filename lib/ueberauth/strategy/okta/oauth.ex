@@ -81,8 +81,25 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
       |> configure_url(:userinfo, "/userinfo")
       |> Keyword.fetch!(:userinfo_url)
 
-    client(opts)
-    |> Client.get(userinfo_url, headers, opts)
+    {client_opts, request_opts} =
+      Keyword.split(opts, [
+        :authorize_url,
+        :client_id,
+        :client_secret,
+        :headers,
+        :params,
+        :redirect_uri,
+        :ref,
+        :serializers,
+        :site,
+        :strategy,
+        :token,
+        :token_method,
+        :token_url,
+      ])
+
+    client(client_opts)
+    |> Client.get(userinfo_url, headers, request_opts)
     |> case do
       {:ok, %{status_code: 200, body: user}} -> {:ok, user}
       {:ok, result} -> {:error, result}
