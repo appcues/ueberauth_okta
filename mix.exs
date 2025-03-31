@@ -1,7 +1,7 @@
 defmodule Ueberauth.Okta.Mixfile do
   use Mix.Project
 
-  @version "1.1.7"
+  @version "1.1.8"
   @source_url "https://github.com/appcues/ueberauth_okta"
 
   def project do
@@ -9,7 +9,7 @@ defmodule Ueberauth.Okta.Mixfile do
       app: :ueberauth_okta,
       version: @version,
       name: "Ueberauth Okta",
-      elixir: "~> 1.3",
+      elixir: "~> 1.18",
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       package: package(),
