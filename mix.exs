@@ -1,7 +1,7 @@
 defmodule Ueberauth.Okta.Mixfile do
   use Mix.Project
 
-  @version "1.1.9"
+  @version "1.1.10"
   @source_url "https://github.com/appcues/ueberauth_okta"
 
   def project do
@@ -19,7 +19,7 @@ defmodule Ueberauth.Okta.Mixfile do
   end
 
   def application do
-    [applications: [:logger, :ueberauth, :oauth2]]
+    [extra_applications: [:logger, :ueberauth, :oauth2]]
   end
 
   defp deps do
