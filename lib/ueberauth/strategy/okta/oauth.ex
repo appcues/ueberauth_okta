@@ -95,7 +95,7 @@ defmodule Ueberauth.Strategy.Okta.OAuth do
         :strategy,
         :token,
         :token_method,
-        :token_url,
+        :token_url
       ])
 
     client(client_opts)
